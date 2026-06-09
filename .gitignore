@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2026 KDAB
+# SPDX-FileContributor: Nicolas Qiu Guichard <nicolas.guichard@kdab.com>
+#
+# SPDX-License-Identifier: MIT
+
+/.direnv/
+/.envrc
+/result
