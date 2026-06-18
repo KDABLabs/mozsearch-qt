@@ -43,20 +43,18 @@
         "scip-typescript": "scip-typescript"
       },
       "locked": {
-        "lastModified": 1781602835,
-        "narHash": "sha256-in/GqolZF9ELOcgVlW4SnBjWKFWSebyb45aZFzAKA/k=",
-        "ref": "kdab.searchfox.org",
-        "rev": "5a00a38fcf9e4963ab7d0b45b3a24c795efd1be8",
-        "revCount": 2655,
+        "lastModified": 1781703190,
+        "narHash": "sha256-mvGHd7/DNHmyWIn/rh+QAaRk/NFu6gSq9VD5UbdOMHs=",
+        "ref": "refs/heads/master",
+        "rev": "62358f3cb50ab4d892cb1cf2648b182e268c37a5",
+        "revCount": 2658,
         "submodules": true,
         "type": "git",
-        "url": "https://github.com/nicolas-guichard/mozsearch"
+        "url": "https://github.com/mozsearch/mozsearch"
       },
       "original": {
-        "ref": "kdab.searchfox.org",
-        "submodules": true,
         "type": "git",
-        "url": "https://github.com/nicolas-guichard/mozsearch"
+        "url": "https://github.com/mozsearch/mozsearch"
       }
     },
     "nixpkgs": {
