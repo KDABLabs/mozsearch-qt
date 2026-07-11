@@ -5,86 +5,22 @@
 #
 # Builds a mozsearch index of Qt.
 #
-# This (currently) builds each Qt module separately then merges the indexes
-# together using mergeAnalyses and makeSubfolders below. The main downside is
-# that #include directives between modules don't get linked.
-#
 {
+  lib,
   runCommandLocal,
   qt6,
-  stdenvNoCC,
+  fetchgit,
+  runCommand,
   buildMozsearchIndex,
   mozsearchStdenv,
+  libsysprof-capture,
+  libdeflate,
+  python3,
+  lerc,
+  wayland-scanner,
 }: let
-  mergeAnalyses = trees:
-    runCommandLocal "merged-analyses" {
-      trees = map ({
-        name,
-        path,
-        ...
-      }: "${name}:${path}")
-      trees;
-    } ''
-      mkdir -p $out
-      mkdir -p $out/__GENERATED__
-      for tree in $trees; do
-        IFS=':' read -ra TREE <<< "$tree"
-        name=''${TREE[0]}
-        path=''${TREE[1]}
-        mkdir -p $out/$name
-        ln -s $path/* $out/$name
-        if [ -e $out/$name/__GENERATED__ ]; then
-          unlink $out/$name/__GENERATED__
-          ln -s $path/__GENERATED__ $out/__GENERATED__/$name
-        fi
-        rmdir $out/__GENERATED__ 2> /dev/null || true
-      done
-    '';
-
-  makeSubfolders = trees:
-    runCommandLocal "merged-trees" {
-      trees = map ({
-        name,
-        path,
-        ...
-      }: "${name}:${path}")
-      trees;
-    } ''
-      mkdir -p $out
-      for tree in $trees; do
-        IFS=':' read -ra TREE <<< "$tree"
-        name=''${TREE[0]}
-        path=''${TREE[1]}
-        ln -s $path $out/$name
-      done
-    '';
-
-  qt-analyzed = qt6.overrideScope (qtfinal: qtprev: {
-    qtbase = qtprev.qtbase.override {stdenv = mozsearchStdenv;};
-    qtModule = qtprev.qtModule.override {stdenv = mozsearchStdenv;};
-  });
-
-  qt-module-analysis = name: {
-    inherit name;
-    path = qt-analyzed.${name}.analysis;
-  };
-  qt-module-generated = name: {
-    inherit name;
-    path = qt-analyzed.${name}.generated;
-  };
-  qt-module-sources = name: {
-    inherit name;
-    path = stdenvNoCC.mkDerivation {
-      name = "${name}-source";
-      src = qt-analyzed.${name}.src;
-      dontConfigure = true;
-      dontBuild = true;
-      dontFixup = true;
-      installPhase = ''
-        cp -r . $out
-      '';
-    };
-  };
+  rev = "34e6afee8836e067a717359232b9569788a31722";
+  hash = "sha256-PVHmNkAHNqHV8vAordRRYesdvJKSjizJRuhfh/bgL9w=";
 
   qt-modules = [
     "qtbase"
@@ -125,18 +61,60 @@
     "qtwayland"
     "qtwebchannel"
     "qtwebsockets"
-    # "qtwebengine"
-    # "qtwebview"
+#     "qtwebengine"
+#     "qtwebview"
   ];
 
-  qt-src = makeSubfolders (map qt-module-sources qt-modules);
-  qt-generated = makeSubfolders (map qt-module-generated qt-modules);
-  qt-analysis = mergeAnalyses (map qt-module-analysis qt-modules);
+  qt-git = fetchgit {
+    inherit rev hash;
+    url = "git://code.qt.io/qt/qt5.git";
+    fetchSubmodules = true;
+    deepClone = true;
+    leaveDotGit = true;
+  };
+
+  qt-src = runCommand "qt-src" {} ''
+    mkdir -p $out
+    cp -r ${qt-git}/* $out
+  '';
+
+  mergeDeps = kind: builtins.filter (dep: !((builtins.isAttrs dep) && (lib.hasPrefix "qt" dep.name))) (lib.flatten (map (name: qt6.${name}.${kind}) qt-modules));
+
+  qt-analyzed = mozsearchStdenv.mkDerivation {
+    pname = "qt";
+    version = rev;
+
+    src = qt-src;
+
+    buildInputs = mergeDeps "buildInputs" ++ [
+      libdeflate
+      libsysprof-capture
+      lerc
+    ];
+    nativeBuildInputs = mergeDeps "nativeBuildInputs" ++ [
+      python3
+      wayland-scanner
+    ];
+    propagatedBuildInputs = mergeDeps "propagatedBuildInputs";
+
+    cmakeFlags = [
+      "-DFEATURE_developer_build=ON"
+      "-DBUILD_qtwebengine=OFF"
+      "-DBUILD_qtwebview=OFF"
+      "-DQT_BUILD_TESTS=ON"
+      "-DQT_BUILD_EXAMPLES=ON"
+      "-DWARNINGS_ARE_ERRORS=OFF"
+    ];
+
+    doCheck = false;
+
+    __structuredAttrs = true;
+    strictDeps = true;
+  };
 in
   buildMozsearchIndex {
     index-name = "qt";
     src = qt-src;
-    generated = qt-generated;
-    analysis = qt-analysis;
+    inherit (qt-analyzed) generated analysis;
     codesearch-port = 8090;
   }
