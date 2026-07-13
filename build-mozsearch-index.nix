@@ -20,17 +20,20 @@
   mozsearch-tools,
   parallel,
   envsubst,
+  git,
 }: {
   index-name,
   src,
+  git-dir,
+  git-branch,
   generated,
   analysis,
   codesearch-port,
 }: let
-  makeGeneratedSubdir = dir:
-    runCommandLocal "with-generated-subdir" {} ''
+  generated-in-subdir =
+    runCommandLocal "generated-in-subdir" {} ''
       mkdir -p $out
-      ln -s ${dir} $out/__GENERATED__
+      cp -R ${generated} $out/__GENERATED__
     '';
 
   listFiles = root:
@@ -45,17 +48,11 @@
       find -L -mindepth 1 -type d -printf '%P\n' > $out
     '';
 
-  all-files-symlinks = symlinkJoin {
+  all-files = symlinkJoin {
     name = "${index-name}-all-files";
-    paths = [src (makeGeneratedSubdir generated)];
+    paths = [src generated-in-subdir];
   };
 
-  all-files = runCommandLocal "${index-name}-all-files-without-symlinks" {} ''
-    cp -rL ${all-files-symlinks} $out
-  '';
-
-  src-files-list = listFiles src;
-  obj-files-list = listFiles generated;
   all-files-list = listFiles all-files;
   analysis-files-list = listFiles analysis;
   all-dirs-list = listDirs all-files;
@@ -63,15 +60,24 @@
   livegrep-index = let
     config = writeText "livegrep.json" (builtins.toJSON {
       name = "Searchfox";
+      repositories = {
+        name = index-name;
+        path = git-dir;
+        revisions = [ "HEAD" ];
+        walk_submodules = true;
+      };
+
       fs_paths = [
         {
-          name = index-name;
-          path = all-files;
+          name = "${index-name}-__GENERATED__";
+          path = generated-in-subdir;
         }
       ];
     });
   in
-    runCommandLocal "${index-name}-livegrep.idx" {} ''
+    runCommand "${index-name}-livegrep.idx" {} ''
+      HOME=$(mktemp -d)
+      ${git}/bin/git config --global --add safe.directory '*'
       ${livegrep}/bin/codesearch '${config}' -dump_index $out -index_only
     '';
 
@@ -85,8 +91,10 @@
           priority = 1;
           on_error = "halt";
           cache = "nothing";
-          files_path = all-files;
-          objdir_path = "${all-files}/__GENERATED__";
+          files_path = src;
+          objdir_path = generated;
+          git_path = git-dir;
+          git_branch = git-branch;
           index_path = index;
           codesearch_path = livegrep-index;
           codesearch_port = codesearch-port;
@@ -124,6 +132,8 @@
 
     ${mkDirTree "description"}
 
+    HOME=$(mktemp -d)
+    ${git}/bin/git config --global --add safe.directory '*'
     ${crossref-cmd} '${pwd-config}' '${index-name}' '${analysis-files-list}' "$NIX_BUILD_CORES"
 
     mkdir -p $out
@@ -140,6 +150,9 @@
     ln -s ${all-dirs-list} all-dirs
     ln -s ${crossref}/* .
 
+    HOME=$(mktemp -d)
+    ${git}/bin/git config --global --add safe.directory '*'
+
     ${mkDirTree "file"}
     ${parallel-cmd} --jobs $NIX_BUILD_CORES --pipepart -a all-files --block -1 --halt now,fail=1 \
       "${output-file-cmd} '${pwd-config}' '${index-name}' '${url-map}' '${doc-trees}'"
@@ -152,6 +165,9 @@
     ln -s ${all-files-list} all-files
     ln -s ${all-dirs-list} all-dirs
     ln -s ${crossref}/* .
+
+    HOME=$(mktemp -d)
+    ${git}/bin/git config --global --add safe.directory '*'
 
     ${mkDirTree "dir"}
     ${searchfox-tool-cmd} "search-files --limit=0 --include-dirs --group-by=directory | batch-render dir"
@@ -166,6 +182,8 @@
     ln -s ${all-dirs-list} all-dirs
     ln -s ${crossref}/* .
 
+    HOME=$(mktemp -d)
+    ${git}/bin/git config --global --add safe.directory '*'
     ${searchfox-tool-cmd} "render search-template"
 
     cp -r templates $out
@@ -177,6 +195,8 @@
     ln -s ${all-dirs-list} all-dirs
     ln -s ${crossref}/* .
 
+    HOME=$(mktemp -d)
+    ${git}/bin/git config --global --add safe.directory '*'
     ${searchfox-tool-cmd} "render settings"
 
     cp -r pages $out
