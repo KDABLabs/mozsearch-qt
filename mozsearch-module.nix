@@ -87,20 +87,36 @@ in {
       mozsearch-rust-server = {
         wantedBy = ["multi-user.target"];
         after = ["network.target"];
+        path = [
+          pkgs.git
+        ];
         serviceConfig = {
           Type = "exec";
+          ExecStartPre = "${pkgs.git}/bin/git config --global --add safe.directory '*'";
           ExecStart = "${web-server} ${cfg.config} %T/status.txt";
           DynamicUser = true;
+          RuntimeDirectory = "mozsearch-rust-server";
+        };
+        environment = {
+          HOME = "%t/mozsearch-rust-server";
         };
       };
 
       mozsearch-pipeline-server = {
         wantedBy = ["multi-user.target"];
         after = ["network.target"];
+        path = [
+          pkgs.git
+        ];
         serviceConfig = {
           Type = "exec";
+          ExecStartPre = "${pkgs.git}/bin/git config --global --add safe.directory '*'";
           ExecStart = "${pipeline-server} ${cfg.config}";
           DynamicUser = true;
+          RuntimeDirectory = "mozsearch-pipeline-server";
+        };
+        environment = {
+          HOME = "%t/mozsearch-pipeline-server";
         };
       };
     };

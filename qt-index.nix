@@ -20,7 +20,7 @@
   wayland-scanner,
 }: let
   rev = "34e6afee8836e067a717359232b9569788a31722";
-  hash = "sha256-PVHmNkAHNqHV8vAordRRYesdvJKSjizJRuhfh/bgL9w=";
+  hash = "sha256-5jjcd7J4WGznYoPiTNzOwxfuIJYGkO5RHW0FuRFHfHg=";
 
   qt-modules = [
     "qtbase"
@@ -115,6 +115,8 @@ in
   buildMozsearchIndex {
     index-name = "qt";
     src = qt-src;
+    git-dir = qt-git;
+    git-branch = "dev";
     inherit (qt-analyzed) generated analysis;
     codesearch-port = 8090;
   }
