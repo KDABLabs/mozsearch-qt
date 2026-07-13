@@ -32,6 +32,8 @@ in
         imports = ["${nixpkgs}/nixos/modules/virtualisation/qemu-vm.nix"];
         system.stateVersion = "26.11";
 
+        services.getty.autologinUser = "root";
+
         services.nginx = {
           recommendedTlsSettings = true;
           recommendedGzipSettings = true;
