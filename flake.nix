@@ -11,7 +11,7 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     mozsearch = {
-      url = "git+https://github.com/mozsearch/mozsearch";
+      url = "git+https://github.com/nicolas-guichard/mozsearch?ref=push-rvtpswlmrnqt";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -49,8 +49,12 @@
         mozsearch-src = mozsearch;
       };
 
+      buildBlameRepo = pkgs.callPackage ./build-blame-repo.nix {
+        inherit (mozsearchPkgs) mozsearch-tools;
+      };
+
       qt-index = pkgs.callPackage ./qt-index.nix {
-        inherit mozsearchStdenv buildMozsearchIndex;
+        inherit mozsearchStdenv buildMozsearchIndex buildBlameRepo;
       };
     in {
       packages.${system} = {
