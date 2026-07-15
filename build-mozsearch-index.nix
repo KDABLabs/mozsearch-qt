@@ -25,6 +25,7 @@
   src,
   git-dir,
   git-branch,
+  git-blame,
   generated,
   analysis,
   livegrep-index,
@@ -65,6 +66,7 @@
           objdir_path = generated;
           git_path = git-dir;
           git_branch = git-branch;
+          git_blame_path = git-blame;
           index_path = index;
           codesearch_path = livegrep-index;
           codesearch_port = codesearch-port;
