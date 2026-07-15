@@ -15,7 +15,6 @@
   runCommandLocal,
   symlinkJoin,
   writeText,
-  livegrep,
   mozsearch-src,
   mozsearch-tools,
   parallel,
@@ -28,14 +27,9 @@
   git-branch,
   generated,
   analysis,
+  livegrep-index,
   codesearch-port,
 }: let
-  generated-in-subdir =
-    runCommandLocal "generated-in-subdir" {} ''
-      mkdir -p $out
-      cp -R ${generated} $out/__GENERATED__
-    '';
-
   listFiles = root:
     runCommandLocal "${root.name}-file-list" {} ''
       cd ${root}
@@ -50,36 +44,12 @@
 
   all-files = symlinkJoin {
     name = "${index-name}-all-files";
-    paths = [src generated-in-subdir];
+    paths = [src generated];
   };
 
   all-files-list = listFiles all-files;
   analysis-files-list = listFiles analysis;
   all-dirs-list = listDirs all-files;
-
-  livegrep-index = let
-    config = writeText "livegrep.json" (builtins.toJSON {
-      name = "Searchfox";
-      repositories = {
-        name = index-name;
-        path = git-dir;
-        revisions = [ "HEAD" ];
-        walk_submodules = true;
-      };
-
-      fs_paths = [
-        {
-          name = "${index-name}-__GENERATED__";
-          path = generated-in-subdir;
-        }
-      ];
-    });
-  in
-    runCommand "${index-name}-livegrep.idx" {} ''
-      HOME=$(mktemp -d)
-      ${git}/bin/git config --global --add safe.directory '*'
-      ${livegrep}/bin/codesearch '${config}' -dump_index $out -index_only
-    '';
 
   mkConfig = {
     index,

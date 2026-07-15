@@ -10,6 +10,7 @@
   runCommandLocal,
   qt6,
   fetchgit,
+  git,
   runCommand,
   buildMozsearchIndex,
   mozsearchStdenv,
@@ -18,6 +19,8 @@
   python3,
   lerc,
   wayland-scanner,
+  livegrep,
+  writeText,
 }: let
   rev = "34e6afee8836e067a717359232b9569788a31722";
   hash = "sha256-5jjcd7J4WGznYoPiTNzOwxfuIJYGkO5RHW0FuRFHfHg=";
@@ -111,12 +114,45 @@
     __structuredAttrs = true;
     strictDeps = true;
   };
+
+  index-name = "qt";
+  git-branch = "dev";
+
+  generated-in-subdir =
+    runCommandLocal "generated-in-subdir" {} ''
+      mkdir -p $out
+      cp -R ${qt-analyzed.generated} $out/__GENERATED__
+    '';
+
+  livegrep-index = let
+    config = writeText "livegrep.json" (builtins.toJSON {
+      name = "Searchfox";
+      repositories = {
+        name = index-name;
+        path = qt-git;
+        revisions = [ "HEAD" ];
+        walk_submodules = true;
+      };
+
+      fs_paths = [
+        {
+          name = "${index-name}-__GENERATED__";
+          path = generated-in-subdir;
+        }
+      ];
+    });
+  in
+    runCommand "${index-name}-livegrep.idx" {} ''
+      HOME=$(mktemp -d)
+      ${git}/bin/git config --global --add safe.directory '*'
+      ${livegrep}/bin/codesearch '${config}' -dump_index $out -index_only
+    '';
 in
   buildMozsearchIndex {
-    index-name = "qt";
+    inherit index-name git-branch livegrep-index;
     src = qt-src;
     git-dir = qt-git;
-    git-branch = "dev";
-    inherit (qt-analyzed) generated analysis;
+    inherit (qt-analyzed) analysis;
+    generated = generated-in-subdir;
     codesearch-port = 8090;
   }
