@@ -13,6 +13,7 @@
   git,
   runCommand,
   buildMozsearchIndex,
+  buildBlameRepo,
   mozsearchStdenv,
   libsysprof-capture,
   libdeflate,
@@ -76,6 +77,28 @@
     leaveDotGit = true;
   };
 
+  qt-git-unified = runCommand "qt-git-unified" {} ''
+    PATH=${git}/bin:$PATH
+    HOME=$(mktemp -d)
+    git config --global --add safe.directory '*'
+    git config --global user.email "mozsearch-qt@localhost"
+    git config --global user.name "mozsearch-qt index builder"
+
+    cp -r ${qt-git} $out
+    cd $out
+    chmod -R u+w $out
+
+    git reset --hard
+    SUBMODULES=$(git submodule status | cut -c '2-' | cut -d ' ' -f 2)
+    for SUBMODULE in $SUBMODULES; do
+      git fetch $SUBMODULE HEAD
+      git merge --strategy=ours --no-commit --allow-unrelated-histories FETCH_HEAD
+      rm -rf $SUBMODULE
+      git read-tree --prefix=$SUBMODULE -u FETCH_HEAD
+      git commit -m "Absorb $SUBMODULE submodule"
+    done
+  '';
+
   qt-src = runCommand "qt-src" {} ''
     mkdir -p $out
     cp -r ${qt-git}/* $out
@@ -118,6 +141,12 @@
   index-name = "qt";
   git-branch = "dev";
 
+  qt-blame = buildBlameRepo {
+    inherit index-name;
+    git-dir = qt-git-unified;
+    default-branch = git-branch;
+  };
+
   generated-in-subdir =
     runCommandLocal "generated-in-subdir" {} ''
       mkdir -p $out
@@ -151,7 +180,8 @@ in
   buildMozsearchIndex {
     inherit index-name git-branch livegrep-index;
     src = qt-src;
-    git-dir = qt-git;
+    git-dir = qt-git-unified;
+    git-blame = qt-blame;
     inherit (qt-analyzed) analysis;
     generated = generated-in-subdir;
     codesearch-port = 8090;
