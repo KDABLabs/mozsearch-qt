@@ -30,6 +30,7 @@
   analysis,
   livegrep-index,
   codesearch-port,
+  help-template,
 }: let
   listFiles = root:
     runCommandLocal "${root.name}-file-list" {} ''
@@ -154,9 +155,13 @@
     ln -s ${all-dirs-list} all-dirs
     ln -s ${crossref}/* .
 
+    mkdir templates
+    cp ${help-template} templates/help-input.html
+
     HOME=$(mktemp -d)
     ${git}/bin/git config --global --add safe.directory '*'
     ${searchfox-tool-cmd} "render search-template"
+    ${searchfox-tool-cmd} "render help"
 
     cp -r templates $out
   '';

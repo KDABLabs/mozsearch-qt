@@ -185,4 +185,5 @@ in
     inherit (qt-analyzed) analysis;
     generated = generated-in-subdir;
     codesearch-port = 8090;
+    help-template = ./help-template.html;
   }

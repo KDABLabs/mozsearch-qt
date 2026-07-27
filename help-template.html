@@ -1,0 +1,108 @@
+<section class="intro">
+    <h1>Welcome to KDAB's Searchfox instance</h1>
+
+    <p>
+        Searchfox (aka <a href="https://github.com/mozsearch/mozsearch">mozsearch</a>) is a source code indexing tool for Mozilla Firefox.
+        This deployment focuses on Qt instead and is hosted by <a href="https://kdab.com">KDAB</a>.
+    </p>
+
+    <p>
+        <a href="/qt/source">Browse the Qt sources here!</a>
+    </p>
+
+    <section>
+        <h2>Searchfox provides:</h2>
+        <ul>
+            <li>Go to declaration/definition and usage search</li>
+            <li>Call/Class/Inheritance diagrams</li>
+            <li>Fully-indexed C++ macro expansions</li>
+            <li>Fast full-text search based on <a href="https://livegrep.com">Livegrep</a></li>
+            <li>Git blame and Git history navigation</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Query Language</h2>
+
+        <p>Searchfox supports both text and file path searches.</p>
+
+        <p>
+            Queries entered into the search box use exact string matching, except for <a href="https://firefox-source-docs.mozilla.org/contributing/searchfox/searchfox_search.html#advanced-query-syntax">the advanced syntax</a>.
+            Case insensitive matching and <a href="https://github.com/google/re2/wiki/syntax">regular expression matching</a> can be requested with the check boxes.
+            See <a href="https://firefox-source-docs.mozilla.org/contributing/searchfox/searchfox_search.html">the documentation</a> for more details.
+        </p>
+
+        <p>
+            Path filtering uses globbing. A path matches even if only a substring of the path is matched by the glob.
+            Use the <code>^</code> and <code>$</code> operators to match the beginning or end of the path.
+        </p>
+
+        <section>
+            <h3>Here are some examples:</h3>
+
+            <dl>
+                <dt><code>test</code></dt>
+                <dd>Find all paths containing the substring "<code>test</code>".</dd>
+
+                <dt><code>^js/src</code></dt>
+                <dd>Find all paths starting with <code>js/src</code>.</dd>
+
+                <dt><code>*.cpp</code></dt>
+                <dd>Find all paths containing "<code>.cpp</code>".</dd>
+
+                <dt><code>*.cpp$</code></dt>
+                <dd>Find all paths ending with "<code>.cpp</code>".</dd>
+
+                <dt><code>^js/src/*.cpp$</code></dt>
+                <dd>Find all C++ files in <code>js/src</code>, but not in subdirectories (i.e., <code>*</code> does not match <code>/</code>).</dd>
+
+                <dt><code>^js/src/**.cpp$</code></dt>
+                <dd>Find all C++ files in <code>js/src</code> or in subdirectories (i.e., <code>**</code> matches <code>/</code>).</dd>
+
+                <dt><code>^js/src/**.{cpp,h}$</code></dt>
+                <dd>Find all C++ source or header files in <code>js/src</code> or in subdirectories.</dd>
+            </dl>
+        </section>
+    </section>
+
+    <section>
+        <h2>Cross-referencing</h2>
+
+        <p>
+            Once you have arrived at a file, you can mouse over identifiers.If
+            the color of the identifier changes, then clicking on the identifier
+            will open a context menu for cross-referencing identifiers.
+        </p>
+
+        <div id="file">
+            <p>
+                You can see an example by mousing
+                over &ldquo;<code><span class="syn_def" data-symbols="_ZN7QObject7connectEPKS_RK11QMetaMethodS1_S4_N2Qt14ConnectionTypeE" data-confidences="[&quot;concrete&quot;]">QObject::connect</span></code>&rdquo; and
+                clicking. A context menu will open and you can choose to search for all references to the symbol
+                (definitions, assignments, and uses).
+            </p>
+        </div>
+
+        <script>
+            var SYM_INFO = {
+                "_ZN7QObject7connectEPKS_RK11QMetaMethodS1_S4_N2Qt14ConnectionTypeE": {"sym":"_ZN7QObject7connectEPKS_RK11QMetaMethodS1_S4_N2Qt14ConnectionTypeE","pretty":"QObject::connect","meta":{"structured":1,"pretty":"QObject::connect","sym":"_ZN7QObject7connectEPKS_RK11QMetaMethodS1_S4_N2Qt14ConnectionTypeE","type_pretty":null,"kind":"method","subsystem":null,"parentsym":"T_QObject","implKind":"","sizeBytes":null,"alignmentBytes":null,"ownVFPtrBytes":null,"bindingSlots":[],"ontologySlots":[],"supers":[],"methods":[],"fields":[],"overrides":[],"props":["static","user"],"variants":[],"args":[{"name":"sender","type":"const QObject *","typesym":"T_QObject"},{"name":"signal","type":"const QMetaMethod &","typesym":"T_QMetaMethod"},{"name":"receiver","type":"const QObject *","typesym":"T_QObject"},{"name":"method","type":"const QMetaMethod &","typesym":"T_QMetaMethod"},{"name":"type","type":"Qt::ConnectionType","typesym":"T_Qt::ConnectionType"}]},"jumps":{"def":"qtbase/src/corelib/kernel/qobject.cpp#3241","decl":"qtbase/src/corelib/kernel/qobject.h#215"}},
+            };
+        </script>
+    </section>
+
+    <section>
+        <h2>Syntax Highlighting</h2>
+
+        <p>Searchfox uses semantic syntax highlighting. The color depends on the color scheme, light or dark.</p>
+
+        <ul>
+            <li>Types are shown in <span class="syn_type">teal (blue-green) or sky-blue</span></li>
+            <li>Definitions are shown in <span class="syn_def">bold</span></li>
+            <li>Comments are shown in <span class="syn_comment">dark-red or gray</span></li>
+            <li>Reserved words are shown in <span class="syn_reserved">blue or orange</span></li>
+            <li>String are shown in <span class="syn_string">green or light-green</span></li>
+            <li>Regular expressions are shown in <span class="syn_regex">gray or lavendar</span></li>
+            <li>Hovering over an identifier <span class="selected" data-symbols>highlights</span> other uses of that <span class="selected" data-symbols>identifier</span></li>
+        </ul>
+    </section>
+</section>
