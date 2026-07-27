@@ -23,8 +23,8 @@
   livegrep,
   writeText,
 }: let
-  rev = "34e6afee8836e067a717359232b9569788a31722";
-  hash = "sha256-5jjcd7J4WGznYoPiTNzOwxfuIJYGkO5RHW0FuRFHfHg=";
+  rev = "85ece8bd32f05616ece6099e8ed9dd54c4887e97";
+  hash = "sha256-A3YMQ1bRtoPHgYEsMQAfhbIV9zB5KI8rn4oXo0QA5U8=";
 
   qt-modules = [
     "qtbase"
