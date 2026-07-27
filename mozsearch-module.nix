@@ -125,76 +125,38 @@ in {
       enable = true;
 
       virtualHosts.${cfg.virtualHost} = {
+        root = cfg.docroot;
+
         extraConfig = ''
           error_page 404 /static/html/404.html;
+          add_header Cache-Control "must-revalidate";
+          gzip_static always;
+          gunzip on;
+          absolute_redirect off;
         '';
+
         locations =
           {
-            "= /index.html" = {
-              alias = "${cfg.docroot}/help.html";
-              extraConfig = ''
-                add_header Cache-Control "must-revalidate";
-              '';
-            };
-
-            "= /robots.txt" = {
-              root = cfg.mozsearch-static;
-              extraConfig = ''
-                add_header Cache-Control "public";
-                expires 1d;
-              '';
-            };
-
-            "= /tree-list.js" = {
-              root = cfg.docroot;
-              tryFiles = "$uri =404";
-              extraConfig = ''
-                add_header Cache-Control "must-revalidate";
-              '';
-            };
-
-            "/static/".alias = "${cfg.mozsearch-static}/";
             "~ ^/[^/]+/static/(?<filename>.*)$".alias = "${cfg.mozsearch-static}/$filename";
+
             "~ ^/[^/]+/source" = {
-              root = cfg.docroot;
-              tryFiles = "/file/$uri /dir/$uri/index.html =404";
               extraConfig = ''
                 types { }
                 default_type text/html;
-                add_header Cache-Control "must-revalidate";
-                gzip_static always;
-                gunzip on;
               '';
             };
+
             "~ ^/[^/]+/raw-analysis/" = {
-              root = cfg.docroot;
-              tryFiles = "/raw-analysis/$uri =404";
               extraConfig = ''
                 types { }
                 default_type text/plain;
-                add_header Cache-Control "must-revalidate";
-                gzip_static always;
-                gunzip on;
               '';
             };
+
             "~ ^/[^/]+/raw/" = {
-              root = cfg.docroot;
-              tryFiles = "/raw/$uri =404";
               extraConfig = ''
                 types { }
                 default_type text/plain;
-                add_header Cache-Control "must-revalidate";
-                gzip_static always;
-                gunzip on;
-              '';
-            };
-            "~ ^/[^/]+/pages/" = {
-              root = cfg.docroot;
-              tryFiles = "/pages/$uri =404";
-              extraConfig = ''
-                add_header Cache-Control "must-revalidate";
-                gzip_static always;
-                gunzip on;
               '';
             };
           }
