@@ -192,17 +192,39 @@
     ln -s ${pages} $out/pages
   '';
 
+  tree-list = writeText "tree-list.js" ''
+    var TREE_LIST = ${builtins.toJSON [
+      [
+        {
+          name = index-name;
+          items = [{ value = index-name; }];
+        }
+      ]
+    ]};
+  '';
+
+  source = symlinkJoin {
+    name = "${index-name}-source";
+    paths = [
+      file
+      dir
+    ];
+  };
+
   docroot = runCommandLocal "${index-name}-docroot" {} ''
     mkdir -p $out
-    mkdir -p $out/file/${index-name}
-    mkdir -p $out/dir/${index-name}
-    mkdir -p $out/raw-analysis/${index-name}
-    mkdir -p $out/raw/${index-name}
+    mkdir -p $out/source
+    mkdir -p $out/raw-analysis
+    mkdir -p $out/raw
 
-    ln -s ${index}/file $out/file/${index-name}/source
-    ln -s ${index}/dir $out/dir/${index-name}/source
-    ln -s ${analysis} $out/raw-analysis/${index-name}/raw-analysis
-    ln -s ${all-files} $out/raw/${index-name}/raw
+    ln -s ${templates}/help.html $out/index.html
+    ln -s ${tree-list} $out/tree-list.js
+
+    mkdir -p $out/${index-name}
+    ln -s ${source} $out/${index-name}/source
+    ln -s ${analysis} $out/${index-name}/raw-analysis
+    ln -s ${all-files} $out/${index-name}/raw
+    ln -s ${pages} $out/${index-name}/pages
   '';
 
   config = mkConfig {inherit index codesearch-port;};
