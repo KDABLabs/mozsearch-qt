@@ -36,6 +36,13 @@
       system = "x86_64-linux";
       pkgs = import nixpkgs {
         inherit system;
+
+        overlays = [
+          # Workaround for https://github.com/NixOS/nixpkgs/pull/579232
+          (final: prev: {
+            reuse = prev.reuse.overridePythonAttrs {sphinxBuilders = "html man";};
+          })
+        ];
       };
 
       mozsearchPkgs = mozsearch.packages.${system};
