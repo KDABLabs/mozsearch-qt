@@ -43,28 +43,28 @@
         "scip-typescript": "scip-typescript"
       },
       "locked": {
-        "lastModified": 1784192437,
-        "narHash": "sha256-jyQV0f5TJAwmE5H0fN8EkoijnPHPa5eD0os/r44mr6Y=",
-        "ref": "push-rvtpswlmrnqt",
-        "rev": "00a0fab693b59ca5de66ea0047a542dffc994ff0",
-        "revCount": 2703,
+        "lastModified": 1785501246,
+        "narHash": "sha256-EOsSFjRn99nun1MbgRrPz6TKdXyaNeBRL8lvVvruGgA=",
+        "ref": "mozsearch-qt",
+        "rev": "e30faf95a5820c00079fb9bc433175de6d898d79",
+        "revCount": 2709,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/nicolas-guichard/mozsearch"
       },
       "original": {
-        "ref": "push-rvtpswlmrnqt",
+        "ref": "mozsearch-qt",
         "type": "git",
         "url": "https://github.com/nicolas-guichard/mozsearch"
       }
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1782467914,
-        "narHash": "sha256-pGvFkM8N0xEkIIXDe5YYfbEAvHrk4IxBrjB/x8OomhE=",
+        "lastModified": 1785318670,
+        "narHash": "sha256-dN6Ou5x/+23FZLEpYP3IffO+NyJFzUlGumt1uu3MMaY=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "e73de5be04e0eff4190a1432b946d469c794e7b4",
+        "rev": "0954f7ee2f6bb3dc7d4e3d0d8bcb8fd4bde4cfc5",
         "type": "github"
       },
       "original": {

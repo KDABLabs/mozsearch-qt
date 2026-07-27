@@ -11,7 +11,7 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
     mozsearch = {
-      url = "git+https://github.com/nicolas-guichard/mozsearch?ref=push-rvtpswlmrnqt";
+      url = "git+https://github.com/nicolas-guichard/mozsearch?ref=mozsearch-qt";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
